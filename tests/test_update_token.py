@@ -31,3 +31,24 @@ def test_write_env_writes_both_keys(tmp_path):
     content = env_file.read_text()
     assert "ACCESS_TOKEN=tok123" in content
     assert "SESSION_ID=sid456" in content
+
+
+def test_read_capture_stops_when_both_found(monkeypatch):
+    feed = iter([
+        "...access_token=238269c236b8064b6cfeeddd9299f6...",
+        'Extra-Data: {"sid":"YZ1519722428273684480YZt4jlBdyf"}',
+        "此行不应被读取",
+    ])
+    monkeypatch.setattr("builtins.input", lambda: next(feed))
+    text = update_token.read_capture()
+    token, sid = update_token.parse_credentials(text)
+    assert token == "238269c236b8064b6cfeeddd9299f6"
+    assert sid == "YZ1519722428273684480YZt4jlBdyf"
+    assert "不应被读取" not in text
+
+
+def test_read_capture_stops_on_eof(monkeypatch):
+    def raise_eof():
+        raise EOFError
+    monkeypatch.setattr("builtins.input", raise_eof)
+    assert update_token.read_capture() == ""

@@ -30,9 +30,25 @@ def update_secrets(token: str, sid: str) -> None:
     subprocess.run(["gh", "secret", "set", "SESSION_ID", "--body", sid], check=True)
 
 
+def read_capture() -> str:
+    """逐行读取抓包内容，凑齐 access_token 和 sid 后自动结束（无需结束键）。"""
+    print("粘贴抓包内容（含 access_token 的 URL 和带 sid 的 Extra-Data 行）：")
+    lines: list[str] = []
+    while True:
+        try:
+            lines.append(input())
+        except EOFError:
+            break
+        try:
+            parse_credentials("\n".join(lines))
+            break
+        except ValueError:
+            continue
+    return "\n".join(lines)
+
+
 def main() -> None:
-    print("粘贴抓包内容（含 access_token 的 URL 和带 sid 的 Extra-Data 行），然后按 Ctrl-D：")
-    text = sys.stdin.read()
+    text = read_capture()
     try:
         token, sid = parse_credentials(text)
     except ValueError as e:
