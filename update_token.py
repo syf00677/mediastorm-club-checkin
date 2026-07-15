@@ -3,7 +3,7 @@
 
 用法：
     python update_token.py
-    然后粘贴抓包的 URL 和 Extra-Data 行，按 Ctrl-D 结束。
+    然后粘贴抓包的 URL 和 Extra-Data 行，读到 token 和 sid 后自动结束。
 """
 import re
 import subprocess
